@@ -1,58 +1,80 @@
-/******************************************************************************
- * Akıllı Kasa Programı (C Dili)
- * 
- * Bu program; ürün tutarını ve müşterinin ödediği parayı float olarak alır,
- * hassasiyet kaybını önlemek için kuruş cinsinden tam sayılarla hesaplama yapar
- * ve müşteriye verilecek para üstünü en az sayıda banknot/madeni para ile dağıtarak
- * toplam küpür adedini ekrana yazdırır.
- ******************************************************************************/
-
 #include <stdio.h>
-#include <math.h> // round() fonksiyonu için (Derlerken -lm baytı gerekebilir)
+#include <math.h>
 
-void akilli_kasa(float urun_tutari, float odenen_para) {
-    // Para üstü hesabı (float)
-    float para_ustu_tl = odenen_para - urun_tutari;
+int main(void)
+{
+    float urun_tutari, odenen_para;
+    int para_ustu;
+    int adet, toplam_kupur = 0;
+    int i;
 
-    // Doğru yuvarlama yöntemi (round kullanarak kayan nokta hassasiyet kaybını önleme)
-    int toplam_kurus = (int)round(para_ustu_tl * 100);
-
-    // Küpür ve madeni para birimleri ve isimleri (kuruş cinsinden büyükten küçüğe)
-    int degerler[] = {20000, 10000, 5000, 2000, 1000, 500, 100, 50, 25, 10, 5, 1};
-    const char *isimler[] = {
-        "200 TL Banknot", "100 TL Banknot", "50 TL Banknot", "20 TL Banknot", 
-        "10 TL Banknot", "5 TL Banknot", "1 TL Madeni Para", "50 Kurus", 
-        "25 Kurus", "10 Kurus", "5 Kurus", "1 Kurus"
+    // Kupurler kurus cinsinden buyukten kucuge siralanmistir.
+    int kupurler[] = {
+        20000, 10000, 5000, 2000, 1000, 500,
+        100, 50, 25, 10, 5, 1
     };
-    int boyut = 12;
 
-    int kalan = toplam_kurus;
-    int toplam_kupur_sayisi = 0;
+    const char *kupur_isimleri[] = {
+        "200 TL banknot",
+        "100 TL banknot",
+        "50 TL banknot",
+        "20 TL banknot",
+        "10 TL banknot",
+        "5 TL banknot",
+        "1 TL madeni para",
+        "50 kurus",
+        "25 kurus",
+        "10 kurus",
+        "5 kurus",
+        "1 kurus"
+    };
 
-    printf("--- KASA ISLEM RAPORU ---\n");
-    printf("Urun Tutari      : %.2f TL\n", urun_tutari);
-    printf("Odenen Para      : %.2f TL\n", odenen_para);
-    printf("Toplam Para Ustu : %.2f TL (%d Kurus)\n\n", para_ustu_tl, toplam_kurus);
-    printf("Para Ustu Dagilimi:\n");
+    int kupur_sayisi = sizeof(kupurler) / sizeof(kupurler[0]);
 
-    // En az sayıda küpür/madeni para ile dağılım hesabı
-    for (int i = 0; i < boyut; i++) {
-        if (kalan >= degerler[i]) {
-            int adet = kalan / degerler[i];
-            kalan = kalan % degerler[i];
-            toplam_kupur_sayisi += adet;
-            printf("  - %d adet %s\n", adet, isimler[i]);
-        }
+    printf("Urun tutarini TL olarak giriniz: ");
+
+    if (scanf("%f", &urun_tutari) != 1 ||
+        !isfinite(urun_tutari) || urun_tutari < 0) {
+        printf("Gecersiz urun tutari!\n");
+        return 1;
     }
 
-    // Toplam küpür/madeni para sayısı
-    printf("\n==> Toplam Verilen Kupur/Madeni Para Sayisi: %d\n", toplam_kupur_sayisi);
-    printf("-------------------------------------------\n\n");
-}
+    printf("Odenen parayi TL olarak giriniz: ");
 
-int main() {
-    // Örnek Test Senaryosu (Ürün: 18.70 TL, Ödenen: 20.00 TL)
-    akilli_kasa(18.70f, 20.00f);
-    
+    if (scanf("%f", &odenen_para) != 1 ||
+        !isfinite(odenen_para) || odenen_para < 0) {
+        printf("Gecersiz odeme tutari!\n");
+        return 1;
+    }
+
+    if (odenen_para < urun_tutari) {
+        printf("Odeme yetersiz!\n");
+        printf("Eksik tutar: %.2f TL\n",
+               urun_tutari - odenen_para);
+        return 0;
+    }
+
+    // Para ustunu kurus cinsine cevir ve yuvarla.
+    para_ustu = (int)roundf(
+        (odenen_para - urun_tutari) * 100.0f
+    );
+
+    printf("\nPara ustu: %.2f TL\n", para_ustu / 100.0);
+    printf("Para ustu dagilimi:\n");
+
+    // Acgozlu algoritma: Buyuk kupurden kucuge ilerle.
+    for (i = 0; i < kupur_sayisi; i++) {
+        adet = para_ustu / kupurler[i];
+
+        if (adet > 0) {
+            printf("%s: %d adet\n", kupur_isimleri[i], adet);
+            toplam_kupur += adet;
+        }
+
+        para_ustu = para_ustu % kupurler[i];
+    }
+
+    printf("\nToplam kupur sayisi: %d\n", toplam_kupur);
+
     return 0;
 }
