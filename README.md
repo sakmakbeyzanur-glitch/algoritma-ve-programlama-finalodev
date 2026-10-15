@@ -1,15 +1,23 @@
+/******************************************************************************
+ * Akıllı Kasa Programı (C Dili)
+ * 
+ * Bu program; ürün tutarını ve müşterinin ödediği parayı float olarak alır,
+ * hassasiyet kaybını önlemek için kuruş cinsinden tam sayılarla hesaplama yapar
+ * ve müşteriye verilecek para üstünü en az sayıda banknot/madeni para ile dağıtarak
+ * toplam küpür adedini ekrana yazdırır.
+ ******************************************************************************/
+
 #include <stdio.h>
-#include <math.h> // round() fonksiyonu için
+#include <math.h> // round() fonksiyonu için (Derlerken -lm baytı gerekebilir)
 
 void akilli_kasa(float urun_tutari, float odenen_para) {
     // Para üstü hesabı (float)
     float para_ustu_tl = odenen_para - urun_tutari;
 
-    // 3. Kural: Doğru yuvarlama yöntemi (round kullanarak hassasiyet kaybını önleme)
-    // C dilinde round() fonksiyonu double döner, int'e cast ediyoruz.
+    // Doğru yuvarlama yöntemi (round kullanarak kayan nokta hassasiyet kaybını önleme)
     int toplam_kurus = (int)round(para_ustu_tl * 100);
 
-    // Küpür ve madeni para birimleri ve isimleri (büyükten küçüğe)
+    // Küpür ve madeni para birimleri ve isimleri (kuruş cinsinden büyükten küçüğe)
     int degerler[] = {20000, 10000, 5000, 2000, 1000, 500, 100, 50, 25, 10, 5, 1};
     const char *isimler[] = {
         "200 TL Banknot", "100 TL Banknot", "50 TL Banknot", "20 TL Banknot", 
@@ -21,8 +29,10 @@ void akilli_kasa(float urun_tutari, float odenen_para) {
     int kalan = toplam_kurus;
     int toplam_kupur_sayisi = 0;
 
-    printf("Urun Tutari: %.2f TL | Odenen Para: %.2f TL\n", urun_tutari, odenen_para);
-    printf("Toplam Para Ustu: %.2f TL (%d Kurus)\n", para_ustu_tl, toplam_kurus);
+    printf("--- KASA ISLEM RAPORU ---\n");
+    printf("Urun Tutari      : %.2f TL\n", urun_tutari);
+    printf("Odenen Para      : %.2f TL\n", odenen_para);
+    printf("Toplam Para Ustu : %.2f TL (%d Kurus)\n\n", para_ustu_tl, toplam_kurus);
     printf("Para Ustu Dagilimi:\n");
 
     // En az sayıda küpür/madeni para ile dağılım hesabı
@@ -35,13 +45,13 @@ void akilli_kasa(float urun_tutari, float odenen_para) {
         }
     }
 
-    // 2. Kural: Toplam küpür sayısı
-    printf("==> Toplam Verilen Kupur/Madeni Para Sayisi: %d\n\n", toplam_kupur_sayisi);
+    // Toplam küpür/madeni para sayısı
+    printf("\n==> Toplam Verilen Kupur/Madeni Para Sayisi: %d\n", toplam_kupur_sayisi);
+    printf("-------------------------------------------\n\n");
 }
 
 int main() {
-    // Örnek Test Senaryosu
-    printf("=== AKILLI KASA PROGRAMI ===\n\n");
+    // Örnek Test Senaryosu (Ürün: 18.70 TL, Ödenen: 20.00 TL)
     akilli_kasa(18.70f, 20.00f);
     
     return 0;
